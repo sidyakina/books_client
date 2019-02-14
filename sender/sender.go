@@ -1,4 +1,4 @@
-package main
+package sender
 
 import (
 	"bufio"
@@ -8,7 +8,26 @@ import (
 	"net"
 )
 
-func getAllBook(){
+type Sender struct {
+	conn net.Conn
+}
+
+func Init() (*Sender, error) {
+	conn, err := net.Dial("tcp", "localhost:3333")
+	if err != nil {
+		return nil, err
+	}
+	return &Sender{conn}, nil
+}
+
+func (s Sender)Close() {
+	err := s.conn.Close()
+	if err != nil {
+		fmt.Printf("Error while disconnect %v\n", err)
+	}
+}
+
+func (s Sender)GetAllBook(){
 	msg := make (map[string]interface{})
 	msg["cmd"] = "getAllBooks"
 	msgS, err := json.Marshal(msg)
@@ -16,10 +35,10 @@ func getAllBook(){
 		fmt.Print(err)
 		return
 	}
-	sendMsg(msgS)
+	s.sendMsg(msgS)
 }
 
-func addBook(name, author string, year int16){
+func (s Sender)AddBook(name, author string, year int16){
 	msg := make (map[string]interface{})
 	msg["cmd"] = "addBook"
 	params := make (map[string]interface{})
@@ -32,10 +51,10 @@ func addBook(name, author string, year int16){
 		fmt.Print(err)
 		return
 	}
-	sendMsg(msgS)
+	s.sendMsg(msgS)
 }
 
-func removeBook(id int32) {
+func (s Sender)RemoveBook(id int32) {
 	msg := make (map[string]interface{})
 	msg["cmd"] = "deleteBook"
 	params := make (map[string]interface{})
@@ -46,24 +65,22 @@ func removeBook(id int32) {
 		fmt.Print(err)
 		return
 	}
-	sendMsg(msgS)
+	s.sendMsg(msgS)
 }
 
-func sendMsg(msg []byte) {
-	conn, err := net.Dial("tcp", "localhost:3333")
-	if err != nil {
-		fmt.Printf("Error while connect %v\n", err)
-		return
-	}
-	_, err = conn.Write(msg)
+func (s Sender)sendMsg(msg []byte) {
+	_, err := s.conn.Write(msg)
 	if err != nil {
 		fmt.Printf("Error while send %v\n", err)
 		return
 	}
-	response, err := bufio.NewReader(conn).ReadString('\n')
+	response, err := bufio.NewReader(s.conn).ReadString('\n')
 	if err != nil && err != io.EOF{
 		fmt.Printf("Error while read %v\n", err)
 		return
 	}
 	fmt.Printf("response %v\n", response)
+	if err == io.EOF{
+		fmt.Printf("Warning: server close connect!\n")
+	}
 }

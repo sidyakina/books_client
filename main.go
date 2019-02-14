@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/sidyakina/books_client/sender"
 	"os"
 	"strconv"
 	"strings"
@@ -10,6 +11,12 @@ import (
 )
 
 func main (){
+	s, err := sender.Init()
+	if err != nil {
+		fmt.Printf("Error while connect %v\n", err)
+		return
+	}
+	defer s.Close()
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Enter your command: ")
@@ -30,7 +37,7 @@ func main (){
 			return
 		case "list":
 			fmt.Println("cmd list")
-			getAllBook()
+			s.GetAllBook()
 		case "add":
 			fmt.Println("cmd add")
 			params := strings.Split(strings.Trim(text[3:], " "), ";;")
@@ -51,7 +58,7 @@ func main (){
 				fmt.Printf("Invalid empty parameter \n")
 				break
 			}
-			addBook(params[0], params[1], int16(year))
+			s.AddBook(params[0], params[1], int16(year))
 		case "remove":
 			fmt.Println("cmd remove")
 			param := strings.Trim(text[6:], " ")
@@ -64,7 +71,7 @@ func main (){
 				fmt.Printf("Error while parse: %v\n", err)
 				break
 			}
-			removeBook(int32(id))
+			s.RemoveBook(int32(id))
 		default:
 			fmt.Printf("Not found %v\n", cmd)
 		}
