@@ -30,7 +30,7 @@ func main (){
 			fmt.Println("list - for view all books (no parameters)")
 			fmt.Println("add - for add book (parameters name, author, year)")
 			fmt.Println(" Example: add new book;;author;;1834")
-			fmt.Println("add - for remove book (parameter id)")
+			fmt.Println("remove - for remove book (parameter id)")
 			fmt.Println(" Example: remove 188809934")
 		case "close":
 			fmt.Println("cmd close")
@@ -42,7 +42,7 @@ func main (){
 			fmt.Println("cmd add")
 			params := strings.Split(strings.Trim(text[3:], " "), ";;")
 			if len(params) != 3{
-				fmt.Printf("Invalid number parameters!\n")
+				fmt.Printf("Invalid number of parameters!\n")
 				break
 			}
 			year, err := strconv.ParseInt(strings.Trim(params[2], " "), 10, 0)

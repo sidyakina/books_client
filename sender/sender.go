@@ -69,7 +69,7 @@ func (s Sender)RemoveBook(id int32) {
 }
 
 func (s Sender)sendMsg(msg []byte) {
-	_, err := s.conn.Write(msg)
+	_, err := s.conn.Write(append(msg, byte('\n')))
 	if err != nil {
 		fmt.Printf("Error while send %v\n", err)
 		return
