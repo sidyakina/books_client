@@ -3,20 +3,24 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/sidyakina/books_client/sender"
+	"github.com/sidyakina/books_client/sender/senderNATS"
+	//"github.com/sidyakina/books_client/sender/senderTCP"
+	"github.com/sidyakina/books_client/use_case"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func main (){
-	s, err := sender.Init()
+func main() {
+	//sendMsg, err := senderTCP.Init()
+	sendMsg, err := senderNATS.Init()
+	s := use_case.NewSendMsgInteractor(sendMsg)
 	if err != nil {
 		fmt.Printf("Error while connect %v\n", err)
 		return
 	}
-	defer s.Close()
+	defer sendMsg.Close()
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Enter your command: ")
@@ -41,7 +45,7 @@ func main (){
 		case "add":
 			fmt.Println("cmd add")
 			params := strings.Split(strings.Trim(text[3:], " "), ";;")
-			if len(params) != 3{
+			if len(params) != 3 {
 				fmt.Printf("Invalid number of parameters!\n")
 				break
 			}
@@ -50,7 +54,7 @@ func main (){
 				fmt.Printf("Error while parse: %v\n", err)
 				break
 			}
-			if int(year) > time.Now().Year() || year <= 0{
+			if int(year) > time.Now().Year() || year <= 0 {
 				fmt.Printf("Invalid parameter for year:%v \n", year)
 				break
 			}
@@ -78,4 +82,3 @@ func main (){
 
 	}
 }
-
